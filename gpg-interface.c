@@ -870,7 +870,7 @@ static char *get_default_ssh_signing_key(void)
 	int n;
 	char *default_key = NULL;
 	const char *literal_key = NULL;
-	char *begin, *new_line, *first_line, *end;
+	char *begin, *new_line, *first_line;
 
 	if (!ssh_default_key_command)
 		die(_("either user.signingkey or gpg.ssh.defaultKeyCommand needs to be configured"));
@@ -889,8 +889,10 @@ static char *get_default_ssh_signing_key(void)
 	if (!ret) {
 		begin = key_stdout.buf;
 		new_line = strchr(begin, '\n');
-		end = new_line ? new_line : strchr(begin, '\0');
-		first_line = xmemdupz(begin, end - begin);
+		if (new_line)
+			first_line = xmemdupz(begin, new_line - begin);
+		else
+			first_line = xstrdup(begin);
 		if (is_literal_ssh_key(first_line, &literal_key)) {
 			/*
 			 * We only use `is_literal_ssh_key` here to check validity
