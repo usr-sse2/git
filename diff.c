@@ -6828,6 +6828,16 @@ void diff_flush(struct diff_options *options)
 			     DIFF_FORMAT_NAME |
 			     DIFF_FORMAT_NAME_STATUS |
 			     DIFF_FORMAT_CHECKDIFF)) {
+		/*
+		 * make sure diff_Flush_patch_quietly() to be silent.
+		 */
+		FILE *saved_file = options->file;
+		int saved_color_moved = options->color_moved;
+
+		if (options->flags.diff_from_contents) {
+			options->file = xfopen("/dev/null", "w");
+			options->color_moved = 0;
+		}
 		for (i = 0; i < q->nr; i++) {
 			struct diff_filepair *p = q->queue[i];
 
@@ -6839,6 +6849,11 @@ void diff_flush(struct diff_options *options)
 				continue;
 
 			flush_one_pair(p, options);
+		}
+		if (options->flags.diff_from_contents) {
+			fclose(options->file);
+			options->file = saved_file;
+			options->color_moved = saved_color_moved;
 		}
 		separator++;
 	}
