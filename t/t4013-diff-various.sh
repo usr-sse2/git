@@ -683,11 +683,7 @@ test_expect_success 'diff -I<regex>: ignore all content changes' '
 
 	test_diff_no_content_changes () {
 		git diff $1 --ignore-blank-lines -I".*" >actual &&
-		test_line_count = 3 actual &&
-		test_grep "file1" actual &&
-		test_grep "file2" actual &&
-		test_grep "file3" actual &&
-		test_grep ! "diff --git" actual
+		test_must_be_empty actual
 	} &&
 	test_diff_no_content_changes "--raw" &&
 	test_diff_no_content_changes "--name-only" &&
